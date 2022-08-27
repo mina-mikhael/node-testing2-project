@@ -102,3 +102,36 @@ describe("LOGIN end point", () => {
     expect(result.status).toBe(401);
   });
 });
+
+describe("USERS RESTRICTED ENDPOINT", () => {
+  test("can not access the end point if no logged in user", async () => {
+    const result = await request(server).get("/api/users");
+    expect(result.body).toMatchObject({
+      message: "Token required",
+    });
+    expect(result.status).toBe(401);
+  });
+
+  test("can not access the end point if a not admin user is logged in", async () => {
+    const notAdmin = await request(server)
+      .post("/api/auth/login")
+      .send({ username: "sue", password: "1234" });
+    const result = await request(server)
+      .get("/api/users")
+      .set("Authorization", notAdmin.body.token);
+    expect(result.status).toBe(403);
+    expect(result.body.length).toBeFalsy();
+  });
+
+  test("can get access to the endpoint if admin is logged in", async () => {
+    const admin = await request(server)
+      .post("/api/auth/login")
+      .send({ username: "bob", password: "1234" });
+    const result = await request(server)
+      .get("/api/users")
+      .set("Authorization", admin.body.token);
+
+    expect(result.status).toBe(200);
+    expect(result.body.length).toBe(2);
+  });
+});
