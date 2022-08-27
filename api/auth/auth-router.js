@@ -7,7 +7,7 @@ const {
   checkUsernameFree,
 } = require("./auth-middleware");
 const { JWT_SECRET, BCRYPT_ROUNDS } = require("../secrets"); // use this secret!
-const { add, findBy, findById } = require("../users/users-model");
+const { add } = require("../users/users-model");
 
 router.post("/register", checkUsernameFree, validateRoleName, async (req, res, next) => {
   /**
